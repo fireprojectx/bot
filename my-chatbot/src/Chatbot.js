@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import mermaid from 'mermaid';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import './Chatbot.css';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
+    const mermaidDivRef = useRef(null);
+
+    useEffect(() => {
+        mermaid.initialize({ startOnLoad: true });
+    }, []);
+
+    useEffect(() => {
+        if (mermaidDivRef.current) {
+            mermaid.contentLoaded();
+        }
+    }, [messages]);
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
@@ -13,36 +28,96 @@ const Chatbot = () => {
         if (input.trim() === '') return;
 
         const userMessage = { sender: 'user', text: input };
-        setMessages([...messages, userMessage]);
+        const newMessages = [...messages, userMessage];
+        setMessages(newMessages);
+
+        const fixedText = "Faça um diagrama no formato mermaid sobre o tema (apenas código simples e correto): ";
+        const backendMessage = { sender: 'user', text: fixedText + input };
 
         try {
             const response = await axios.post(
-                'https://api.openai.com/v1/chat/completions',
+                'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent',
                 {
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        ...messages.map(msg => ({ role: msg.sender, content: msg.text })),
-                        { role: 'user', content: input }
-                    ],
+                    contents: [
+                        {
+                            role: 'user',
+                            parts: [{ text: backendMessage.text }]
+                        }
+                    ]
                 },
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
+                        'x-goog-api-key': process.env.REACT_APP_GEMINI_API_KEY,
                     },
                 }
             );
 
+            const text = response.data.candidates[0].content.parts[0].text;
+            console.log('Generated text:', text);
+
             const botMessage = {
                 sender: 'assistant',
-                text: response.data.choices[0].message.content,
+                text: text,
             };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (error) {
             console.error('Error sending message:', error);
+            const errorMessage = { sender: 'assistant', text: 'Error: Could not fetch response from Gemini API.' };
+            setMessages((prevMessages) => [...prevMessages, errorMessage]);
         }
 
         setInput('');
+    };
+
+    const renderMermaidDiagram = (message, index) => {
+        const mermaidRegex = /```mermaid\n([\s\S]+?)```/;
+        const match = message.match(mermaidRegex);
+        if (match) {
+            const diagram = match[1];
+            const diagramId = `mermaid-diagram-${index}`;
+
+            try {
+                // Verificar se o código Mermaid é válido
+                mermaid.parse(diagram);
+
+                setTimeout(() => {
+                    mermaid.contentLoaded();
+                    mermaid.init(undefined, `#${diagramId}`);
+                }, 0);
+
+                return (
+                    <div>
+                        <div id={diagramId} className="mermaid">{diagram}</div>
+                        <button onClick={() => downloadPDF(diagramId)}>Baixar PDF</button>
+                    </div>
+                );
+            } catch (e) {
+                console.error('Invalid Mermaid syntax:', e);
+                return (
+                    <div>
+                        <div>Invalid Mermaid syntax, displaying as plain text:</div>
+                        <div>{message}</div>
+                    </div>
+                );
+            }
+        }
+        return <div>{message}</div>;
+    };
+
+    const downloadPDF = async (diagramId) => {
+        const input = document.getElementById(diagramId);
+        const canvas = await html2canvas(input, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'px',
+            format: [canvas.width, canvas.height],
+        });
+
+        pdf.setFontSize(10);
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('diagram.pdf');
     };
 
     return (
@@ -50,18 +125,22 @@ const Chatbot = () => {
             <div className="chatbox">
                 {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.sender}`}>
-                        {msg.text}
+                        {msg.sender === 'assistant' ? renderMermaidDiagram(msg.text, index) : msg.text}
                     </div>
                 ))}
             </div>
-            <input
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-            />
-            <button onClick={handleSendMessage}>Send</button>
+            <div className="input-container">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={handleInputChange}
+                />
+                <button onClick={handleSendMessage}>Send</button>
+            </div>
         </div>
     );
 };
 
 export default Chatbot;
+
+
