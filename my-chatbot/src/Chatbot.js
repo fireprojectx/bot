@@ -8,6 +8,7 @@ import './Chatbot.css';
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
+    const [error, setError] = useState(null);
     const mermaidDivRef = useRef(null);
 
     useEffect(() => {
@@ -28,11 +29,22 @@ const Chatbot = () => {
         if (input.trim() === '') return;
 
         const userMessage = { sender: 'user', text: input };
-        const newMessages = [...messages, userMessage];
-        setMessages(newMessages);
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-        const fixedText = "Faça um diagrama no formato mermaid sobre o tema (apenas código simples e correto): ";
-        const backendMessage = { sender: 'user', text: fixedText + input };
+        const fixedText = `Crie um diagrama no formato Mermaid sobre o tema "${input}". Use a estrutura do exemplo abaixo como exemplo (Não coloque elementos textuais tais como 'Claro' etc):
+
+\`\`\`mermaid
+graph TD
+    A[Início] --> B[Etapa 1]
+    B --> C[Etapa 2]
+    C --> D{Decisão}
+    D --> |Sim| E[Etapa 3]
+    D --> |Não| F[Fim]
+    E --> G[Etapa 4]
+    G --> H[Etapa 5]
+    H --> I[Fim]
+\`\`\`
+`;
 
         try {
             const response = await axios.post(
@@ -41,7 +53,7 @@ const Chatbot = () => {
                     contents: [
                         {
                             role: 'user',
-                            parts: [{ text: backendMessage.text }]
+                            parts: [{ text: fixedText }]
                         }
                     ]
                 },
@@ -53,12 +65,9 @@ const Chatbot = () => {
                 }
             );
 
-            const text = response.data.candidates[0].content.parts[0].text;
-            console.log('Generated text:', text);
-
             const botMessage = {
                 sender: 'assistant',
-                text: text,
+                text: response.data.candidates[0].content.parts[0].text,
             };
             setMessages((prevMessages) => [...prevMessages, botMessage]);
         } catch (error) {
@@ -78,7 +87,6 @@ const Chatbot = () => {
             const diagramId = `mermaid-diagram-${index}`;
 
             try {
-                // Verificar se o código Mermaid é válido
                 mermaid.parse(diagram);
 
                 setTimeout(() => {
@@ -128,6 +136,7 @@ const Chatbot = () => {
                         {msg.sender === 'assistant' ? renderMermaidDiagram(msg.text, index) : msg.text}
                     </div>
                 ))}
+                {error && <div className="error-message">{error}</div>}
             </div>
             <div className="input-container">
                 <input
@@ -142,5 +151,3 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
-
-
