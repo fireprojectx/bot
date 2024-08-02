@@ -1,3 +1,8 @@
+body {
+    background: linear-gradient(to bottom, #002f4b, #005c97); /* Fundo azul escuro com degradê */
+    font-family: Arial, sans-serif;
+}
+
 .chatbox {
     border: 1px solid #ccc;
     padding: 10px;
@@ -5,29 +10,65 @@
     margin: 20px auto;
     height: 400px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff; /* Fundo branco para a área de mensagens */
+    border-radius: 10px; /* Bordas arredondadas na chatbox */
 }
 
 .message {
-    padding: 5px 10px;
+    padding: 10px;
     margin: 5px 0;
+    max-width: 70%;
+    border-radius: 10px; /* Bordas arredondadas nas mensagens */
+    display: inline-block;
+    font-size: 16px; /* Tamanho da fonte das mensagens */
 }
 
 .message.user {
-    background-color: #e1ffc7;
+    background-color: #4fc3f7; /* Fundo azul para o usuário */
     align-self: flex-end;
+    text-align: right;
+    color: #fff; /* Texto branco para contraste */
 }
 
 .message.bot {
-    background-color: #f1f1f1;
+    background-color: #0288d1; /* Fundo azul mais escuro para o bot */
     align-self: flex-start;
+    text-align: left;
+    color: #fff; /* Texto branco para contraste */
+}
+
+.input-container {
+    display: flex;
+    justify-content: center; /* Centralizar o container de input */
+    align-items: center;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 10px; /* Bordas arredondadas na input container */
+    background-color: #ffffff; /* Fundo branco para a área de input */
 }
 
 input {
     width: calc(100% - 100px);
     padding: 10px;
-    margin: 20px 0;
+    border-radius: 5px; /* Bordas arredondadas no input */
+    border: 1px solid #ccc; /* Borda ao redor do input */
+    font-size: 16px; /* Tamanho da fonte do input */
 }
 
 button {
     padding: 10px;
+    border-radius: 5px; /* Bordas arredondadas no botão */
+    background-color: #0288d1; /* Fundo azul para o botão */
+    color: #fff; /* Texto branco no botão */
+    border: none; /* Remover borda do botão */
+    cursor: pointer; /* Mostrar cursor de ponteiro no botão */
+    margin-left: 10px; /* Espaço entre o input e o botão */
 }
+
+button:hover {
+    background-color: #0277bd; /* Fundo azul mais escuro ao passar o mouse */
+}
+
+
