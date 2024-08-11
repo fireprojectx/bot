@@ -31,27 +31,7 @@ const Chatbot = () => {
         const userMessage = { sender: 'user', text: input };
         setMessages((prevMessages) => [...prevMessages, userMessage]);
 
-        const fixedText = `Crie um diagrama no formato Mermaid sobre o tema "${input}". Use a estrutura do exemplo abaixo como exemplo:
-
-\`\`\`mermaid
-graph TD
-    A[Início] --> B[Etapa 1]
-    B --> C[Etapa 2]
-    C --> D{Decisão}
-    D --> |Sim| E[Etapa 3]
-    D --> |Não| F[Fim]
-    E --> G[Etapa 4]
-    G --> H[Etapa 5]
-    H --> I[Fim]
-\`\`\`
-(para não dar esses erros ERROR
-Parse error on line 7:
-...ra --> combustíveis fósseis[Combustíveis
------------------------^
-Expecting 'SEMI', 'NEWLINE', 'EOF', 'AMP', 'START_LINK', 'LINK', got 'NODE_STRING'
-Error: Parse error on line 7:
-...ra --> combustíveis fósseis[Combustíveis
------------------------^)`;
+        const fixedText = `Crie um diagrama no formato Mermaid sobre o tema "${input}".`;
 
         try {
             const response = await axios.post(
