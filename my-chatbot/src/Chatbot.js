@@ -12,7 +12,32 @@ const Chatbot = () => {
     const mermaidDivRef = useRef(null);
 
     useEffect(() => {
-        mermaid.initialize({ startOnLoad: true });
+        mermaid.initialize({
+            startOnLoad: true,
+            themeCSS: `
+                .node rect {
+                    fill: #4fc3f7;
+                    stroke: #0277bd;
+                    stroke-width: 2px;
+                    rx: 10px;
+                    ry: 10px;
+                }
+
+                .node text {
+                    fill: #ffffff;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+
+                .edgeLabel {
+                    background-color: rgba(255, 255, 255, 0.8);
+                    padding: 2px 4px;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    color: #000000;
+                }
+            `,
+        });
     }, []);
 
     useEffect(() => {
@@ -138,3 +163,4 @@ const Chatbot = () => {
 };
 
 export default Chatbot;
+

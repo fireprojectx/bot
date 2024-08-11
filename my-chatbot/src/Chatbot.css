@@ -72,3 +72,25 @@ button:hover {
 }
 
 
+/* Adicionar este estilo ao seu arquivo CSS ou no componente React */
+.mermaid .node rect {
+    fill: #4fc3f7; /* Cor de fundo das caixas */
+    stroke: #0277bd; /* Cor da borda das caixas */
+    stroke-width: 2px; /* Espessura da borda */
+    rx: 10px; /* Raio horizontal dos cantos arredondados */
+    ry: 10px; /* Raio vertical dos cantos arredondados */
+}
+
+.mermaid .node text {
+    fill: #ffffff; /* Cor do texto dentro das caixas */
+    font-size: 14px; /* Tamanho da fonte do texto */
+    font-weight: bold; /* Texto em negrito */
+}
+
+.mermaid .edgeLabel {
+    background-color: rgba(255, 255, 255, 0.8); /* Fundo semitransparente para as etiquetas das arestas */
+    padding: 2px 4px; /* Espaçamento interno das etiquetas */
+    border-radius: 5px; /* Cantos arredondados das etiquetas */
+    font-size: 12px; /* Tamanho da fonte das etiquetas */
+    color: #000000; /* Cor do texto das etiquetas */
+}
